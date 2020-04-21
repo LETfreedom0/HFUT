@@ -1,6 +1,7 @@
 import requests
 import random
 import json
+from lxml import etree
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
@@ -113,7 +114,33 @@ def get_answer(question):
         else:
             print("ERROR:"+str(req.status_code))
             break
-
+            
+def get_answer2(question):
+    url = 'https://souti.lyoo.xyz/'
+    cookie = ''
+    host = 'souti.lyoo.xyz'
+    referer = 'https://souti.lyoo.xyz/'
+    file = open("33.txt", mode='w')
+    cnt=1
+    for i in question:
+        print("----第 %d 题----" %cnt)
+        print("question: "+i['stem'])
+        data = {
+            "w":i['stem']
+        }
+        req = to_requests(url,cookie,host,referer,data)
+        if req.status_code == 200:
+            html = etree.HTML(req.text)
+            ans = html.xpath('//blockquote[@class = "layui-elem-quote"]/text()')
+            print("answer: "+ans[2].strip('\n \n \n\t\t\t\t')+'\n')
+            file.write("第"+str(cnt)+"题 :")
+            file.write(ans[2].strip('\n \n \n\t\t\t\t')+'\n')
+            file.flush()
+            cnt = cnt + 1
+        else:
+            print("ERROR:"+str(req.status_code))
+            break
+            
 if __name__ == '__main__':
     #question = get_question()
     question = get_question_from_txt("11.txt")
